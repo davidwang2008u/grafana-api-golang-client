@@ -179,7 +179,7 @@ func (c *Client) UpdateTeamPreferences(id int64, preferences Preferences) error 
 	return c.request("PUT", path, nil, bytes.NewBuffer(data), nil)
 }
 
-func (c *Client) AddTeamPolicy(id int64, policyUID string, orgId int64) error {
+func (c *Client) NewTeamPolicy(id int64, policyUID string, orgId int64) error {
 	path := fmt.Sprintf("/api/access-control/teams/%d/policies", id)
 	req := struct {
 		OrgId     int64  `json:"orgId"`

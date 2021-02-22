@@ -87,6 +87,17 @@ const (
   "message":"Preferences updated"
 }
 `
+
+	createTeamPolicyJSON = `
+{
+  "message":"Policy added to the team."
+}
+`
+	deleteTeamPolicyJSON = `
+{
+  "message":"Policy removed from the team."
+}
+`
 )
 
 func TestSearchTeam(t *testing.T) {
@@ -293,6 +304,28 @@ func TestUpdateTeamPreferences(t *testing.T) {
 	}
 
 	if err := client.UpdateTeamPreferences(id, preferences); err != nil {
+		t.Error(err)
+	}
+}
+
+func TestNewTeamPolicy(t *testing.T) {
+	server, client := gapiTestTools(t, 201, createTeamPolicyJSON)
+	defer server.Close()
+
+	id := int64(1)
+
+	if err := client.NewTeamPolicy(id, "vc3SCSsGz", 1); err != nil {
+		t.Error(err)
+	}
+}
+
+func TestDeleteTeamPolicy(t *testing.T) {
+	server, client := gapiTestTools(t, 200, deleteTeamPolicyJSON)
+	defer server.Close()
+
+	id := int64(1)
+
+	if err := client.DeleteTeamPolicy(id, "vc3SCSsGz"); err != nil {
 		t.Error(err)
 	}
 }
