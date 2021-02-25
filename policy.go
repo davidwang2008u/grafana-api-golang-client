@@ -6,6 +6,8 @@ import (
 	"fmt"
 )
 
+const policyRootUrl = "/api/access-control/policies"
+
 type Policy struct {
 	OrgID       int64        `json:"orgId"`
 	Name        string       `json:"name"`
@@ -18,6 +20,16 @@ type Permission struct {
 	Scope      string `json:"scope"`
 }
 
+// get
+func (c *Client) GetPolicy(uid string) (*Policy, error) {
+	p := &Policy{}
+	err := c.request("GET", buildUrl(uid), nil, nil, p)
+	if err != nil {
+		return nil, err
+	}
+	return p, nil
+}
+
 func (c *Client) NewPolicy(policy Policy) (string, error) {
 	data, err := json.Marshal(policy)
 	if err != nil {
@@ -28,7 +40,7 @@ func (c *Client) NewPolicy(policy Policy) (string, error) {
 		UID string `json:"uid"`
 	}{}
 
-	err = c.request("POST", "/api/access-control/policies", nil, bytes.NewBuffer(data), &created)
+	err = c.request("POST", policyRootUrl, nil, bytes.NewBuffer(data), &created)
 	if err != nil {
 		return "", err
 	}
@@ -42,11 +54,15 @@ func (c *Client) UpdatePolicy(uid string, policy Policy) error {
 		return err
 	}
 
-	err = c.request("PUT", fmt.Sprintf("/api/access-control/policies/%s", uid), nil, bytes.NewBuffer(data), nil)
+	err = c.request("PUT", buildUrl(uid), nil, bytes.NewBuffer(data), nil)
 
 	return err
 }
 
 func (c *Client) DeletePolicy(uid string) error {
-	return c.request("DELETE", fmt.Sprintf("/api/access-control/policies/%s", uid), nil, nil, nil)
+	return c.request("DELETE", buildUrl(uid), nil, nil, nil)
+}
+
+func buildUrl(uid string) string {
+	return fmt.Sprintf("%s/%s", policyRootUrl, uid)
 }
