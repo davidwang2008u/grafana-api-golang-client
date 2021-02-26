@@ -12,6 +12,8 @@ type Policy struct {
 	OrgID       int64        `json:"orgId"`
 	Name        string       `json:"name"`
 	Description string       `json:"description"`
+	UID         string       `json:"uid,omitempty"`
+	PolicyId    int64        `json:"id,omitempty"`
 	Permissions []Permission `json:"permissions,omitempty"`
 }
 
@@ -30,31 +32,29 @@ func (c *Client) GetPolicy(uid string) (*Policy, error) {
 	return p, nil
 }
 
-func (c *Client) NewPolicy(policy Policy) (string, error) {
+func (c *Client) NewPolicy(policy Policy) (*Policy, error) {
 	data, err := json.Marshal(policy)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	created := struct {
-		UID string `json:"uid"`
-	}{}
+	created := &Policy{}
 
 	err = c.request("POST", policyRootUrl, nil, bytes.NewBuffer(data), &created)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return created.UID, err
+	return created, err
 }
 
-func (c *Client) UpdatePolicy(uid string, policy Policy) error {
+func (c *Client) UpdatePolicy(policy Policy) error {
 	data, err := json.Marshal(policy)
 	if err != nil {
 		return err
 	}
 
-	err = c.request("PUT", buildUrl(uid), nil, bytes.NewBuffer(data), nil)
+	err = c.request("PUT", buildUrl(policy.UID), nil, bytes.NewBuffer(data), nil)
 
 	return err
 }

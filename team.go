@@ -179,14 +179,14 @@ func (c *Client) UpdateTeamPreferences(id int64, preferences Preferences) error 
 	return c.request("PUT", path, nil, bytes.NewBuffer(data), nil)
 }
 
-func (c *Client) NewTeamPolicy(id int64, policyUID string, orgId int64) error {
+func (c *Client) NewTeamPolicy(id int64, policyId int64, orgId int64) error {
 	path := fmt.Sprintf("/api/access-control/teams/%d/policies", id)
 	req := struct {
-		OrgId     int64  `json:"orgId"`
-		PolicyUID string `json:"policyUid"`
+		OrgId    int64
+		PolicyId int64
 	}{
-		OrgId:     orgId,
-		PolicyUID: policyUID,
+		OrgId:    orgId,
+		PolicyId: policyId,
 	}
 
 	data, err := json.Marshal(req)
@@ -199,10 +199,23 @@ func (c *Client) NewTeamPolicy(id int64, policyUID string, orgId int64) error {
 	return err
 }
 
-func (c *Client) DeleteTeamPolicy(id int64, policyUID string) error {
-	path := fmt.Sprintf("/api/access-control/teams/%d/policies/%s", id, policyUID)
+func (c *Client) DeleteTeamPolicy(id int64, policyId int64) error {
+	path := fmt.Sprintf("/api/access-control/teams/%d/policies/%d", id, policyId)
 
 	err := c.request("DELETE", path, nil, nil, nil)
 
 	return err
+}
+
+func (c *Client) GetTeamPolicies(id int64) ([]*Policy, error) {
+	policies := make([]*Policy, 0)
+
+	path := fmt.Sprintf("/api/access-control/teams/%d/policies", id)
+
+	err := c.request("DELETE", path, nil, nil, policies)
+	if err != nil {
+		return nil, err
+	}
+
+	return policies, nil
 }
